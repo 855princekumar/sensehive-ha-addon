@@ -1,6 +1,6 @@
 {
   "name": "SenseHive (ARM / Raspberry Pi)",
-  "version": "1.0.1",
+  "version": "1.0.0",
   "slug": "sensehive-arm",
   "description": "Lightweight MQTT dashboard and logger (ARM devices)",
   "startup": "services",
