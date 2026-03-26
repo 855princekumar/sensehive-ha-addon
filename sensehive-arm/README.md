@@ -1,26 +1,9 @@
-# SenseHive (ARM / Raspberry Pi)
+# SenseHive (ARM)
 
-SenseHive is a lightweight MQTT dashboard and logger optimized for Raspberry Pi and low-spec devices.
+Lightweight MQTT dashboard for Raspberry Pi and ARM devices.
 
----
+## Usage
 
-## Features
-
-- Real-time MQTT data monitoring  
-- Local data storage (SQLite)  
-- CSV export  
-- Runs efficiently on ARM devices  
-
----
-
-## Setup
-
-1. Install the add-on  
-2. Open Web UI  
-3. Configure MQTT broker  
-
----
-
-## Access
-
-http://homeassistant.local:5000
+- Install add-on  
+- Open Web UI  
+- Configure MQTT  
