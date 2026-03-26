@@ -1,0 +1,5 @@
+name: SenseHive Add-on Repository
+url: https://github.com/855princekumar/sensehive-ha-addon
+maintainer: Prince kumar
+description: A Home Assistant add-on for SenseHive, providing seamless integration and enhanced functionality for your smart home ecosystem.
+version: 1.0.0
