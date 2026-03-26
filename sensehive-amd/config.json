@@ -1,6 +1,6 @@
 {
   "name": "SenseHive (AMD64)",
-  "version": "1.0.1",
+  "version": "1.0.0",
   "slug": "sensehive-amd",
   "description": "Lightweight MQTT dashboard and logger (x86/AMD64)",
   "startup": "services",
