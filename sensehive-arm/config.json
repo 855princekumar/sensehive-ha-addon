@@ -14,7 +14,7 @@
   },
   "webui": "http://[HOST]:[PORT:5000]",
   "arch": ["armv7", "aarch64"],
-  "image": "devprincekumar/sense-hive:arm-pi5",
+  "image": "docker.io/devprincekumar/sense-hive:arm-pi5",
   "init": false,
   "options": {},
   "schema": {}
