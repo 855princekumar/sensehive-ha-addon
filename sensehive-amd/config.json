@@ -1,0 +1,19 @@
+{
+  "name": "SenseHive (AMD64)",
+  "version": "1.0.1",
+  "slug": "sensehive-amd",
+  "description": "Lightweight MQTT dashboard and logger (x86/AMD64)",
+  "startup": "services",
+  "boot": "auto",
+  "ingress": false,
+  "panel_icon": "mdi:chart-line",
+  "ports": {
+    "5000/tcp": 5000
+  },
+  "webui": "http://[HOST]:[PORT:5000]",
+  "arch": ["amd64"],
+  "image": "devprincekumar/sense-hive:latest",
+  "init": false,
+  "options": {},
+  "schema": {}
+}

@@ -1,0 +1,19 @@
+{
+  "name": "SenseHive (ARM / Raspberry Pi)",
+  "version": "1.0.1",
+  "slug": "sensehive-arm",
+  "description": "Lightweight MQTT dashboard and logger (ARM devices)",
+  "startup": "services",
+  "boot": "auto",
+  "ingress": false,
+  "panel_icon": "mdi:chart-line",
+  "ports": {
+    "5000/tcp": 5000
+  },
+  "webui": "http://[HOST]:[PORT:5000]",
+  "arch": ["armv7", "aarch64"],
+  "image": "devprincekumar/sense-hive:arm-pi5",
+  "init": false,
+  "options": {},
+  "schema": {}
+}
