@@ -1,10 +1,12 @@
 {
   "name": "SenseHive (ARM / Raspberry Pi)",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "slug": "sensehive-arm",
   "description": "Lightweight MQTT dashboard and logger (ARM devices)",
+  "url": "https://github.com/855princekumar/sensehive-ha-addon",
   "startup": "services",
   "boot": "auto",
+  "stage": "stable",
   "ingress": false,
   "panel_icon": "mdi:chart-line",
   "ports": {
