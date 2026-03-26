@@ -1,10 +1,12 @@
 {
   "name": "SenseHive (AMD64)",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "slug": "sensehive-amd",
   "description": "Lightweight MQTT dashboard and logger (x86/AMD64)",
+  "url": "https://github.com/855princekumar/sensehive-ha-addon",
   "startup": "services",
   "boot": "auto",
+  "stage": "stable",
   "ingress": false,
   "panel_icon": "mdi:chart-line",
   "ports": {
