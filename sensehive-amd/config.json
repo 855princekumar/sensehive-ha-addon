@@ -14,7 +14,6 @@
   },
   "webui": "http://[HOST]:[PORT:5000]",
   "arch": ["amd64"],
-  "image": "ghcr.io/855princekumar/sense-hive:latest",
   "init": false,
   "options": {},
   "schema": {}
