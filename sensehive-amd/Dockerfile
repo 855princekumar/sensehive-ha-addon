@@ -1,1 +1,0 @@
-FROM devprincekumar/sense-hive:latest
