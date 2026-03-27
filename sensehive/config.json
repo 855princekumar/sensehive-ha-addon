@@ -4,19 +4,13 @@
   "slug": "sensehive",
   "description": "Lightweight MQTT dashboard and logger",
   "url": "https://github.com/855princekumar/sensehive-ha-addon",
-
   "arch": ["amd64", "armv7", "aarch64"],
-
   "startup": "services",
   "boot": "auto",
-
   "ports": {
     "5000/tcp": 5000
   },
-
   "webui": "http://[HOST]:[PORT:5000]",
-
   "image": "ghcr.io/855princekumar/sense-hive:latest",
-
   "init": false
 }
