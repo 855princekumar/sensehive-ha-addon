@@ -1,0 +1,22 @@
+configuration:
+  mqtt_host:
+    name: MQTT broker host
+    description: >-
+      Leave empty to connect to the Home Assistant Mosquitto add-on automatically.
+      Set it to use a different broker (e.g. 192.168.1.10).
+  mqtt_port:
+    name: MQTT broker port
+    description: Only used when MQTT broker host is set.
+  mqtt_username:
+    name: MQTT username
+    description: Only used when MQTT broker host is set.
+  mqtt_password:
+    name: MQTT password
+    description: Only used when MQTT broker host is set.
+  timezone:
+    name: Timezone
+    description: >-
+      Timezone for stored timestamps (e.g. Europe/Berlin). Leave empty to manage it
+      from the SenseHive Settings page.
+network:
+  5000/tcp: Direct web access (optional, requires SenseHive login)

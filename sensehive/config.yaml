@@ -1,0 +1,34 @@
+name: SenseHive
+version: "1.4.0"
+slug: sensehive
+description: Lightweight MQTT topic logger and dashboard with history, CSV export and LWT device status
+url: https://github.com/855princekumar/sensehive-ha-addon
+arch:
+  - amd64
+  - aarch64
+init: false
+# Opens inside Home Assistant (sidebar); users are authenticated by Home Assistant
+ingress: true
+ingress_port: 5000
+panel_icon: mdi:hexagon-multiple-outline
+panel_title: SenseHive
+# Optional direct access: disabled by default, enable under Network (SenseHive login applies)
+ports:
+  5000/tcp: null
+ports_description:
+  5000/tcp: Direct web access (optional, requires SenseHive login)
+# Discovers the Mosquitto broker automatically when it is installed
+services:
+  - mqtt:want
+options:
+  mqtt_host: ""
+  mqtt_port: 1883
+  mqtt_username: ""
+  mqtt_password: ""
+  timezone: ""
+schema:
+  mqtt_host: str?
+  mqtt_port: port
+  mqtt_username: str?
+  mqtt_password: password?
+  timezone: str?

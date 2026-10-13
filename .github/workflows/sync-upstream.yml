@@ -1,0 +1,48 @@
+name: Sync with SenseHive release
+
+# Keeps the add-on in step with https://github.com/855princekumar/sense-hive:
+# when a new SenseHive release (and its Docker image) is published, open a PR
+# that moves the add-on to it, bumps the add-on version and adds a changelog entry.
+on:
+  schedule:
+    - cron: "17 3 * * *"
+  workflow_dispatch:
+  repository_dispatch:
+    types: [sensehive-release]
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-python@v7
+        with:
+          python-version: "3.12"
+
+      - id: sync
+        name: Check for a newer SenseHive release
+        run: python tools/sync_upstream.py
+
+      - name: Sandbox test with the new image
+        if: steps.sync.outputs.updated == 'true'
+        run: python tests/sandbox_test.py
+
+      - name: Open pull request
+        if: steps.sync.outputs.updated == 'true'
+        uses: peter-evans/create-pull-request@v8
+        with:
+          branch: sync/sensehive-${{ steps.sync.outputs.upstream }}
+          title: "Update SenseHive to ${{ steps.sync.outputs.upstream }} (add-on ${{ steps.sync.outputs.addon }})"
+          commit-message: "Update SenseHive to ${{ steps.sync.outputs.upstream }} (add-on ${{ steps.sync.outputs.addon }})"
+          body: |
+            SenseHive ${{ steps.sync.outputs.upstream }} was released:
+            https://github.com/855princekumar/sense-hive/releases/tag/v${{ steps.sync.outputs.upstream }}
+
+            - `build.yaml` now uses `devprincekumar/sense-hive:${{ steps.sync.outputs.upstream }}`
+            - add-on version bumped to `${{ steps.sync.outputs.addon }}`
+            - sandbox test passed with the new image

@@ -1,0 +1,21 @@
+#include <tunables/global>
+
+profile sensehive flags=(attach_disconnected,mediate_deleted) {
+  #include <abstractions/base>
+
+  # SenseHive is a Python web app: it needs files, network and signals, nothing else.
+  # No capabilities are granted.
+  file,
+  network,
+  signal,
+
+  # Nothing below is needed by SenseHive
+  deny mount,
+  deny umount,
+  deny pivot_root,
+  deny ptrace,
+  deny /proc/sys/** w,
+  deny /sys/** w,
+  deny @{PROC}/sysrq-trigger rwklx,
+  deny @{PROC}/kcore rwklx,
+}

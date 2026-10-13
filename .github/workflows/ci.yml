@@ -1,0 +1,79 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  lint:
+    name: Add-on lint (Home Assistant app linter)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: frenck/action-app-linter@v2.21.1
+        with:
+          path: ./sensehive
+
+  apparmor:
+    name: AppArmor profile
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - run: sudo apt-get update && sudo apt-get install -y apparmor
+      - name: Parse profile
+        run: |
+          sudo apparmor_parser -Q -K sensehive/apparmor.txt
+          test "$(sudo apparmor_parser -Q -K -N sensehive/apparmor.txt)" = "sensehive"
+
+  unit:
+    name: Entry point unit tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
+        with:
+          python-version: "3.12"
+      - run: pip install pytest && python -m pytest -v tests/test_run.py
+
+  build:
+    name: Build ${{ matrix.arch }}
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        include:
+          - arch: amd64
+            platform: linux/amd64
+          - arch: aarch64
+            platform: linux/arm64
+    steps:
+      - uses: actions/checkout@v7
+      - uses: docker/setup-qemu-action@v4
+      - uses: docker/setup-buildx-action@v4
+      - id: info
+        run: |
+          echo "base=$(yq -r '.build_from.${{ matrix.arch }}' sensehive/build.yaml)" >> "$GITHUB_OUTPUT"
+          echo "version=$(yq -r '.version' sensehive/config.yaml)" >> "$GITHUB_OUTPUT"
+      - uses: docker/build-push-action@v7
+        with:
+          context: sensehive
+          platforms: ${{ matrix.platform }}
+          push: false
+          build-args: |
+            BUILD_FROM=${{ steps.info.outputs.base }}
+            BUILD_ARCH=${{ matrix.arch }}
+            BUILD_VERSION=${{ steps.info.outputs.version }}
+
+  sandbox:
+    name: Functional sandbox test (Supervisor, ingress, Mosquitto)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
+        with:
+          python-version: "3.12"
+      - run: python tests/sandbox_test.py
