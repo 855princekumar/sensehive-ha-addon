@@ -50,6 +50,7 @@ Every change runs through [CI](.github/workflows/ci.yml):
 | Unit tests | Option handling, broker discovery, ingress settings |
 | Multi-arch build | amd64 and aarch64 images build from `build.yaml` |
 | Sandbox test | Real add-on container with a mock Supervisor (172.30.32.2), Mosquitto with credentials and an ingress proxy: discovery, ingress without login, direct access requiring login, data flow, LWT, CSV export, persistence across restarts, option overrides, bad credentials |
+| Real Home Assistant (release validation) | Official apps devcontainer, Home Assistant 2026.10.1 + Supervisor 2026.10.2: store install, local build, Mosquitto discovery, ingress via Core, data flow, LWT, restart, backup, security rating 8/8, AppArmor. **21/21 passed** ([how to run](tests/ha-devcontainer/README.md)) |
 
 Run the sandbox locally with Docker: `python tests/sandbox_test.py`
 
