@@ -1,5 +1,23 @@
 # Changelog
 
+## 1.6.0 (SenseHive 1.6.0)
+
+- Update SenseHive to 1.6.0: https://github.com/855princekumar/sense-hive/releases/tag/v1.6.0
+- **Heartbeats for edge nodes** from the add-on Configuration tab: heartbeat master
+  key, API token and broker. Nodes running the
+  [MQTT heartbeat agent](https://github.com/855princekumar/mqtt-heartbeat-service)
+  appear by themselves as online, offline or silent; invalid keys keep it off
+  and are never printed
+- Heartbeat history: charts from 1 minute to 30 days with breaks, uptime and
+  delivery delay; CSV export for one, selected or all nodes (SenseHive 1.5)
+- Two cards on the dashboard switch between Topic logs and Heartbeats with a
+  smooth fade; an (i) guide on each; filter by online, offline or silent
+- Every dialog fits the screen at any size and zoom
+- Hardened against hostile input: payload size cap, per-node flood limit, API
+  token lockout, CSV formula escaping, request size limit, more security headers
+- Optional **admin password** for direct port access (first password of a new
+  database)
+
 ## 1.5.0 (SenseHive 1.4.2)
 
 - Update SenseHive to 1.4.2: https://github.com/855princekumar/sense-hive/releases/tag/v1.4.2

@@ -18,5 +18,27 @@ configuration:
     description: >-
       Timezone for stored timestamps (e.g. Europe/Berlin). Leave empty to manage it
       from the SenseHive Settings page.
+  admin_password:
+    name: Admin password (direct access)
+    description: >-
+      First password of the SenseHive `admin` user, used only for direct access on a
+      port (inside Home Assistant there is no SenseHive login). Applies to a new
+      database; afterwards change it under Settings, Account.
+  heartbeat_master_key:
+    name: Heartbeat master key
+    description: >-
+      Turns on the heartbeat receiver for edge nodes running the MQTT heartbeat agent.
+      64 hex characters, the same fleet key the agents were set up with. Empty = off.
+  heartbeat_api_token:
+    name: Heartbeat API token
+    description: >-
+      Optional bearer token (32+ characters) for other tools to read heartbeat status
+      through the read-only API. Empty = API closed.
+  heartbeat_broker:
+    name: Heartbeat broker
+    description: Public MQTT broker the agents use. Empty = broker.hivemq.com.
+  heartbeat_port:
+    name: Heartbeat broker port
+    description: TLS port of the heartbeat broker (default 8883).
 network:
   5000/tcp: Direct web access (optional, requires SenseHive login)

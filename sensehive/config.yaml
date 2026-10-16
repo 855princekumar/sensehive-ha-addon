@@ -1,7 +1,7 @@
 name: SenseHive
-version: "1.5.0"
+version: "1.6.0"
 slug: sensehive
-description: Lightweight MQTT topic logger and dashboard with history, CSV export and LWT device status
+description: Lightweight MQTT topic logger and dashboard with history, CSV export, LWT device status and edge node heartbeats
 url: https://github.com/855princekumar/sensehive-ha-addon
 arch:
   - amd64
@@ -26,9 +26,19 @@ options:
   mqtt_username: ""
   mqtt_password: ""
   timezone: ""
+  admin_password: ""
+  heartbeat_master_key: ""
+  heartbeat_api_token: ""
+  heartbeat_broker: ""
+  heartbeat_port: 8883
 schema:
   mqtt_host: str?
   mqtt_port: port
   mqtt_username: str?
   mqtt_password: password?
   timezone: str?
+  admin_password: password?
+  heartbeat_master_key: password?
+  heartbeat_api_token: password?
+  heartbeat_broker: str?
+  heartbeat_port: port

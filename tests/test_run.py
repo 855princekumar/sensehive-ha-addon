@@ -63,3 +63,45 @@ def test_load_options_missing_or_invalid(tmp_path):
 def test_discovery_without_token_is_skipped(monkeypatch):
     monkeypatch.delenv('SUPERVISOR_TOKEN', raising=False)
     assert run.discover_mqtt() is None
+
+
+KEY = 'ab' * 32
+
+
+def test_heartbeat_off_without_key():
+    env = {}
+    run.build_env(DEFAULTS, None, env)
+    assert not any(k.startswith('HEARTBEAT_') for k in env)
+
+
+def test_heartbeat_on_with_valid_key_token_and_broker():
+    env = {}
+    options = dict(DEFAULTS, heartbeat_master_key=KEY, heartbeat_api_token='t' * 32,
+                   heartbeat_broker='broker.example.com', heartbeat_port=8884)
+    run.build_env(options, None, env)
+    assert env['HEARTBEAT_MASTER_KEY'] == KEY and env['HEARTBEAT_API_TOKEN'] == 't' * 32
+    assert (env['HEARTBEAT_BROKER'], env['HEARTBEAT_PORT']) == ('broker.example.com', '8884')
+
+
+def test_heartbeat_invalid_key_stays_off_and_is_not_printed(capsys):
+    env = {}
+    secret = 'not-a-key-' + 'z' * 54
+    assert run.build_heartbeat_env(dict(DEFAULTS, heartbeat_master_key=secret, heartbeat_api_token='t' * 40), env) == 'invalid key'
+    assert env == {}
+    assert secret not in capsys.readouterr().out
+
+
+def test_heartbeat_short_token_is_refused_and_not_printed(capsys):
+    env = {}
+    run.build_heartbeat_env(dict(DEFAULTS, heartbeat_master_key=KEY, heartbeat_api_token='short-token'), env)
+    assert 'HEARTBEAT_API_TOKEN' not in env and env['HEARTBEAT_MASTER_KEY'] == KEY
+    out = capsys.readouterr().out
+    assert 'short-token' not in out and KEY not in out
+
+
+def test_admin_password_passed_only_when_set():
+    env = {}
+    run.build_env(DEFAULTS, None, env)
+    assert 'SENSEHIVE_ADMIN_PASSWORD' not in env
+    run.build_env(dict(DEFAULTS, admin_password='Str0ng-pass'), None, env)
+    assert env['SENSEHIVE_ADMIN_PASSWORD'] == 'Str0ng-pass'

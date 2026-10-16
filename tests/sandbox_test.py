@@ -230,6 +230,31 @@ def main():
         time.sleep(4)
         health = json.loads(http('GET', '/api/health')[1])
         check('UI stays up with bad credentials, MQTT reported disconnected', health.get('mqtt_connected') is False, str(health))
+
+        print('Scenario 6: heartbeat receiver from the Configuration tab', flush=True)
+        key, api_token = 'c3' * 32, 'sandbox-heartbeat-token-' + 'x' * 16
+        hb = {'mqtt_host': '', 'mqtt_port': 1883, 'mqtt_username': '', 'mqtt_password': '', 'timezone': '',
+              'admin_password': '', 'heartbeat_master_key': key, 'heartbeat_api_token': api_token,
+              'heartbeat_broker': '', 'heartbeat_port': 8883}
+        check('add-on restarts with heartbeat options', start_addon(image, hb))
+        out = wait_until(lambda: (l := logs()) and 'heartbeat receiver on' in l and l, 30) or logs()
+        check('heartbeat receiver reported on', 'heartbeat receiver on' in out, out[-600:])
+        check('master key and API token never logged', key not in out and api_token not in out)
+        status = json.loads(http('GET', '/api/heartbeat/status')[1] or '{}')
+        check('heartbeat receiver enabled', status.get('enabled') is True, str(status))
+        code, _ = http('GET', '/heartbeats')
+        check('Heartbeats page through ingress', code == 200, str(code))
+        code, js = http('GET', '/static/dashboard.js')
+        check('dashboard has the guides and status filter',
+              code == 200 and 'infoHeartbeats' in js and 'statusFilter' in js, str(code))
+
+        bad = dict(hb, heartbeat_master_key='not-a-valid-key-' + 'q' * 48)
+        start_addon(image, bad)
+        out = wait_until(lambda: (l := logs()) and 'must be 64 hex' in l and l, 30) or logs()
+        check('invalid master key keeps the receiver off',
+              'must be 64 hex' in out and bad['heartbeat_master_key'] not in out, out[-600:])
+        status = json.loads(http('GET', '/api/heartbeat/status')[1] or '{}')
+        check('receiver reported disabled', status.get('enabled') is False, str(status))
     finally:
         if args.keep:
             print(f'Sandbox kept running. Ingress URL: {INGRESS}/')
