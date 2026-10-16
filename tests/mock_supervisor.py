@@ -5,6 +5,7 @@
 Runs at 172.30.32.2 inside the test network, the same address as the real Supervisor.
 """
 import json
+import re
 import os
 import urllib.error
 import urllib.request
@@ -50,6 +51,10 @@ class Handler(BaseHTTPRequestHandler):
         if self.path.startswith(INGRESS_PREFIX):
             rest = self.path[len(INGRESS_PREFIX):]
             _token, _, sub_path = rest.partition('/')
+            # Only a plain path under the add-on: no scheme, host, '..' or odd characters,
+            # so the mock proxy can never be pointed anywhere else.
+            if not re.fullmatch(r"[A-Za-z0-9._~/?=&%,:+-]*", sub_path) or '..' in sub_path or sub_path.startswith('/'):
+                return self._send(400, b'bad path')
             length = int(self.headers.get('Content-Length') or 0)
             data = self.rfile.read(length) if length else None
             req = urllib.request.Request(f'{ADDON_URL}/{sub_path}', data=data, method=self.command)
