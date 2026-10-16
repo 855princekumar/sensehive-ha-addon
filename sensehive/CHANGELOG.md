@@ -1,5 +1,13 @@
 # Changelog
 
+## 1.5.0 (SenseHive 1.4.2)
+
+- Update SenseHive to 1.4.2: https://github.com/855princekumar/sense-hive/releases/tag/v1.4.2
+- New look (light by default, dark remembered), a layout that fits phones to desktops, and a Heartbeats link
+- Browser code now ships inside the image (no CDN) under a strict Content Security Policy; works the same through ingress
+- Salted password hashes and sign-in lockout (SenseHive 1.3), safe topic names and no error details shown to the browser
+- Optional heartbeat receiver for edge nodes (off unless configured)
+
 ## 1.4.0 (SenseHive 1.1.0)
 
 > **Before updating from 1.3.x:** export the CSV of any topic you want to keep.

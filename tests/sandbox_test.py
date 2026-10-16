@@ -150,8 +150,20 @@ def main():
         check('health reports MQTT connected', health.get('mqtt_connected') is True, str(health))
 
         status, page = http('GET', '/')
-        check('dashboard opens through ingress without a login', status == 200 and 'Sense-Hive' in page, f'{status}')
-        check('dashboard uses relative URLs (ingress safe)', "fetch('api/" in page and "fetch('/api" not in page)
+        # The name is "SenseHive" since 1.4 ("Sense-Hive" before)
+        check('dashboard opens through ingress without a login',
+              status == 200 and ('SenseHive' in page or 'Sense-Hive' in page), f'{status}')
+        # Since 1.4 the browser code is served from static/ (no CDN, no inline script); older
+        # versions had it inline. Either way every URL must be relative to work behind ingress.
+        scripts = re.findall(r'<script[^>]*src="([^"]+)"', page)
+        code = page
+        for src in scripts:
+            s_status, s_body = http('GET', '/' + src)
+            check(f'script {src} loads through ingress', s_status == 200 and not src.startswith(('/', 'http')),
+                  f'{s_status}')
+            code += s_body
+        check('dashboard uses relative URLs (ingress safe)', "api/" in code and "fetch('/api" not in code
+              and 'fetch("/api' not in code)
         status, _ = http('GET', '/api/nodes')
         check('API usable through ingress (HA-authenticated)', status == 200, f'{status}')
 
