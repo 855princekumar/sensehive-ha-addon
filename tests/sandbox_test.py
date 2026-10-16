@@ -9,12 +9,13 @@ and then installs the add-on image with /data, options.json and SUPERVISOR_TOKEN
 Usage: python tests/sandbox_test.py [--base-image devprincekumar/sense-hive:1.1.0] [--keep]
 """
 import argparse
+import io
 import json
 import os
 import re
 import subprocess
 import sys
-import tempfile
+import tarfile
 import time
 import urllib.error
 import urllib.request
@@ -93,10 +94,15 @@ def start_addon(image, options):
     docker('create', '--name', f'{PREFIX}-addon', '--network', NETWORK, '--ip', '172.30.33.5',
            '--network-alias', 'sensehive', '-e', f'SUPERVISOR_TOKEN={TOKEN}',
            '-v', f'{PREFIX}-data:/data', image)
-    with tempfile.TemporaryDirectory() as tmp:
-        opts = Path(tmp) / 'options.json'
-        opts.write_text(json.dumps(options))
-        docker('cp', str(opts), f'{PREFIX}-addon:/data/options.json')
+    # options.json goes in as an in-memory tar stream: the test secrets never touch the disk
+    raw = json.dumps(options).encode()
+    buf = io.BytesIO()
+    with tarfile.open(fileobj=buf, mode='w') as tar:
+        info = tarfile.TarInfo('options.json')
+        info.size, info.mode = len(raw), 0o600
+        tar.addfile(info, io.BytesIO(raw))
+    subprocess.run(['docker', 'cp', '-', f'{PREFIX}-addon:/data'], input=buf.getvalue(), check=True,
+                   capture_output=True, env=dict(os.environ, MSYS_NO_PATHCONV='1'))
     docker('start', f'{PREFIX}-addon')
     ok = wait_until(lambda: http('GET', '/api/health')[0] == 200, timeout=60)
     return ok
