@@ -19,6 +19,11 @@ logger and dashboard, directly inside Home Assistant OS / Supervised.
 - Logs every message on the topics you add, 24/7, with history and CSV export
 - Topic stats, tags, node grouping and **LWT-based device online/offline status**
 - Data retention, SQLite WAL mode, wildcard topics (`sensors/#`)
+- **Heartbeats for edge nodes** (optional): nodes running the
+  [MQTT heartbeat agent](https://github.com/855princekumar/mqtt-heartbeat-service) appear by
+  themselves as online, offline or silent; history charts from 1 minute to 30 days, CSV export.
+  Turn it on with a fleet master key in the Configuration tab
+- In-app guides, status filters, dialogs that fit any screen and zoom
 - Data stored in `/data`: survives updates and is part of Home Assistant backups
 - AppArmor profile, no privileges, direct port access off by default
 

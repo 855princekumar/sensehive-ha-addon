@@ -1,6 +1,7 @@
 """Home Assistant add-on entry point: map add-on options to SenseHive environment variables."""
 import json
 import os
+import re
 import sys
 import urllib.request
 
@@ -8,6 +9,8 @@ OPTIONS_FILE = '/data/options.json'
 APP_DIR = '/app'
 # The Supervisor's ingress proxy; Home Assistant has already authenticated these requests
 INGRESS_PROXY = '172.30.32.2'
+MASTER_KEY = re.compile(r'^[0-9a-fA-F]{64}$')
+MIN_TOKEN = 32
 
 
 def load_options(path=OPTIONS_FILE):
@@ -69,7 +72,38 @@ def build_env(options, discovered, environ):
         environ['DEFAULT_TIMEZONE'] = timezone
         environ['SENSEHIVE_TIMEZONE'] = timezone
 
+    # First password of `admin` in a new database (direct access only; ingress needs none)
+    admin = options.get('admin_password') or ''
+    if admin:
+        environ['SENSEHIVE_ADMIN_PASSWORD'] = admin
+
+    build_heartbeat_env(options, environ)
     return broker
+
+
+def build_heartbeat_env(options, environ):
+    """Heartbeat receiver for the MQTT heartbeat agent; off unless a valid master key is set.
+
+    Secrets are validated here and never printed. Returns 'on', 'off' or the reason it stays off.
+    """
+    key = (options.get('heartbeat_master_key') or '').strip()
+    if not key:
+        return 'off'
+    if not MASTER_KEY.match(key):
+        print("SenseHive: heartbeat receiver stays off: heartbeat_master_key must be 64 hex characters")
+        return 'invalid key'
+    environ['HEARTBEAT_MASTER_KEY'] = key
+    token = (options.get('heartbeat_api_token') or '').strip()
+    if token and len(token) >= MIN_TOKEN:
+        environ['HEARTBEAT_API_TOKEN'] = token
+    elif token:
+        print(f"SenseHive: heartbeat API stays closed: heartbeat_api_token needs {MIN_TOKEN}+ characters")
+    broker = (options.get('heartbeat_broker') or '').strip()
+    if broker:
+        environ['HEARTBEAT_BROKER'] = broker
+    if options.get('heartbeat_port'):
+        environ['HEARTBEAT_PORT'] = str(options['heartbeat_port'])
+    return 'on'
 
 
 def main():
@@ -82,6 +116,9 @@ def main():
         print(f"SenseHive: using MQTT broker {broker['host']}:{broker['port']} from {source}")
     else:
         print("SenseHive: no broker configured or discovered; using the broker saved in Settings")
+    if 'HEARTBEAT_MASTER_KEY' in os.environ:
+        print(f"SenseHive: heartbeat receiver on, broker {os.environ.get('HEARTBEAT_BROKER', 'broker.hivemq.com')}"
+              f":{os.environ.get('HEARTBEAT_PORT', '8883')} (TLS)")
 
     os.chdir(APP_DIR)
     os.execvp(sys.executable, [sys.executable, os.path.join(APP_DIR, 'app.py')])

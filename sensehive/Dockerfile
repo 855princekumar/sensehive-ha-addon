@@ -1,4 +1,4 @@
-ARG BUILD_FROM=devprincekumar/sense-hive:1.4.2
+ARG BUILD_FROM=devprincekumar/sense-hive:1.6.0
 FROM ${BUILD_FROM}
 
 ARG BUILD_ARCH
