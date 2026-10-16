@@ -1,5 +1,5 @@
 name: SenseHive
-version: "1.6.0"
+version: "1.6.1"
 slug: sensehive
 description: Lightweight MQTT topic logger and dashboard with history, CSV export, LWT device status and edge node heartbeats
 url: https://github.com/855princekumar/sensehive-ha-addon
