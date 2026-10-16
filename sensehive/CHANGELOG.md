@@ -1,5 +1,12 @@
 # Changelog
 
+## 1.6.1 (SenseHive 1.6.1)
+
+- Update SenseHive to 1.6.1: https://github.com/855princekumar/sense-hive/releases/tag/v1.6.1
+- Heartbeat history always shows an outage that is still going on: how long an
+  offline or silent node has been down since its last heartbeat, also when that
+  was before the chosen range
+
 ## 1.6.0 (SenseHive 1.6.0)
 
 - Update SenseHive to 1.6.0: https://github.com/855princekumar/sense-hive/releases/tag/v1.6.0
