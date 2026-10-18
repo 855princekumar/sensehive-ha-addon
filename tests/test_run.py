@@ -83,6 +83,17 @@ def test_heartbeat_on_with_valid_key_token_and_broker():
     assert (env['HEARTBEAT_BROKER'], env['HEARTBEAT_PORT']) == ('broker.example.com', '8884')
 
 
+def test_heartbeat_auto_key_and_broker_login():
+    env = {}
+    run.build_heartbeat_env(dict(DEFAULTS, heartbeat_master_key='AUTO', heartbeat_broker_username='hive',
+                                 heartbeat_broker_password='s3cret'), env)
+    assert env['HEARTBEAT_MASTER_KEY'] == 'auto'
+    assert (env['HEARTBEAT_BROKER_USERNAME'], env['HEARTBEAT_BROKER_PASSWORD']) == ('hive', 's3cret')
+    env = {}
+    run.build_heartbeat_env(dict(DEFAULTS, heartbeat_master_key=KEY), env)
+    assert 'HEARTBEAT_BROKER_USERNAME' not in env
+
+
 def test_heartbeat_invalid_key_stays_off_and_is_not_printed(capsys):
     env = {}
     secret = 'not-a-key-' + 'z' * 54

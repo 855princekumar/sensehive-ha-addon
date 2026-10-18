@@ -65,12 +65,16 @@ Edge nodes (Raspberry Pi, gateways, servers) running the
 send an encrypted heartbeat every 10 seconds over a public MQTT broker and
 leave a last will. SenseHive finds them by itself.
 
-1. Create a fleet master key once, on any computer:
-   `python3 -c "import secrets; print(secrets.token_hex(32))"`
-2. Enter it as **Heartbeat master key** in the **Configuration** tab and
-   restart the add-on.
-3. Install the agent on each node with the same fleet key
+1. Set **Heartbeat master key** to `auto` in the **Configuration** tab and
+   restart the add-on. SenseHive makes a private fleet key once and keeps it with
+   the add-on's data (it is in Home Assistant backups). An existing fleet key
+   (64 hex characters) works too.
+2. Open **Heartbeats**, **Add node**: a join token for one node, or **Many nodes**
+   for a CSV of tokens.
+3. On each node: `git clone https://github.com/855princekumar/mqtt-heartbeat-service`,
+   `cd mqtt-heartbeat-service`, `sudo python3 setup.py`, and paste the token
    ([setup guide](https://github.com/855princekumar/mqtt-heartbeat-service/blob/main/docs/SETUP.md)).
+   Many nodes at once: the agent's `tools/bulk_setup.py` over SSH.
 4. Open **Heartbeats**: nodes are online, offline (their last will arrived) or
    silent (nothing heard). **History** shows charts from 1 minute to 30 days;
    tick nodes to export CSV. Retired nodes can be moved to the **Recycle bin**.
