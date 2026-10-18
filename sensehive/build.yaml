@@ -1,4 +1,4 @@
 # The add-on wraps the published multi-arch SenseHive image
 build_from:
-  amd64: devprincekumar/sense-hive:1.6.1
-  aarch64: devprincekumar/sense-hive:1.6.1
+  amd64: devprincekumar/sense-hive:1.7.0
+  aarch64: devprincekumar/sense-hive:1.7.0

@@ -1,5 +1,18 @@
 # Changelog
 
+## 1.7.0 (SenseHive 1.7.0)
+
+- Update SenseHive to 1.7.0: https://github.com/855princekumar/sense-hive/releases/tag/v1.7.0
+- **Secure topics**: devices publish encrypted and signed messages under
+  `sensehive/secure/...` with a key SenseHive issues, and their topics appear
+  by themselves. Generate keys in bulk with CSV download, revoke, show again
+  with your password. Code for ESP32, MicroPython, Node-RED and Python:
+  https://github.com/855princekumar/sense-hive/blob/main/docs/SECURE-TOPICS.md
+- Topic logs has two cards: **Open topics** (added by hand) and **Secure topics**
+- Heartbeat recycle bin: hide retired nodes, restore them, see when one comes back
+- The keys are encrypted with SenseHive's secret key in `/data`, which is in Home
+  Assistant backups
+
 ## 1.6.1 (SenseHive 1.6.1)
 
 - Update SenseHive to 1.6.1: https://github.com/855princekumar/sense-hive/releases/tag/v1.6.1

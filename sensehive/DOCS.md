@@ -42,6 +42,22 @@ The two cards at the top switch between **Topic logs** and **Heartbeats**. The
 **(i)** button on each card opens a short guide. Both views filter by status
 (online, offline, silent or no last will).
 
+## Secure topics (found by themselves)
+
+Devices can also send **encrypted and signed** data that only SenseHive can
+read, and SenseHive adds their topics by itself:
+
+1. Open **Topic logs**, then the **Secure topics** card, then **Generate keys**
+   (one per device). Download the CSV: the keys are shown only once.
+2. Put a key id and key on the device and publish under `sensehive/secure/`,
+   on the same broker the add-on uses. Ready-made code for ESP32, MicroPython,
+   Node-RED and Python is in the
+   [secure topics guide](https://github.com/855princekumar/sense-hive/blob/main/docs/SECURE-TOPICS.md);
+   [PowerPulse](https://github.com/855princekumar/powerpulse) is a complete
+   ESP32 example.
+3. The topic appears under **Secure topics** within a second of the first
+   valid message. The device's clock must be right (NTP).
+
 ## Heartbeats for edge nodes
 
 Edge nodes (Raspberry Pi, gateways, servers) running the
@@ -57,7 +73,7 @@ leave a last will. SenseHive finds them by itself.
    ([setup guide](https://github.com/855princekumar/mqtt-heartbeat-service/blob/main/docs/SETUP.md)).
 4. Open **Heartbeats**: nodes are online, offline (their last will arrived) or
    silent (nothing heard). **History** shows charts from 1 minute to 30 days;
-   tick nodes to export CSV.
+   tick nodes to export CSV. Retired nodes can be moved to the **Recycle bin**.
 
 Messages are AES-256-GCM encrypted per node on topics that change every 10
 minutes, so the public broker sees nothing useful. Keep the master key secret:
@@ -74,7 +90,8 @@ the port.
 
 ## Data and backups
 
-The database is stored in the add-on's private `/data` folder. It survives
+The database, and the secret key that protects sessions and secure topic keys,
+are stored in the add-on's private `/data` folder. It survives
 add-on updates and is included in Home Assistant backups. Configure automatic
 cleanup under **Settings → Data Retention** in the SenseHive UI.
 
