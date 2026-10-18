@@ -28,7 +28,9 @@ configuration:
     name: Heartbeat master key
     description: >-
       Turns on the heartbeat receiver for edge nodes running the MQTT heartbeat agent.
-      64 hex characters, the same fleet key the agents were set up with. Empty = off.
+      "auto": a private fleet key made once and kept with the add-on's data (in
+      backups); add nodes with Heartbeats, Add node. Or 64 hex characters, the fleet
+      key the agents were set up with. Empty = off.
   heartbeat_api_token:
     name: Heartbeat API token
     description: >-
@@ -40,5 +42,11 @@ configuration:
   heartbeat_port:
     name: Heartbeat broker port
     description: TLS port of the heartbeat broker (default 8883).
+  heartbeat_broker_username:
+    name: Heartbeat broker username
+    description: SenseHive's login on the heartbeat broker, when your broker needs one. Empty = no login.
+  heartbeat_broker_password:
+    name: Heartbeat broker password
+    description: The password for that login.
 network:
   5000/tcp: Direct web access (optional, requires SenseHive login)

@@ -89,8 +89,10 @@ def build_heartbeat_env(options, environ):
     key = (options.get('heartbeat_master_key') or '').strip()
     if not key:
         return 'off'
-    if not MASTER_KEY.match(key):
-        print("SenseHive: heartbeat receiver stays off: heartbeat_master_key must be 64 hex characters")
+    if key.lower() == 'auto':
+        key = 'auto'                     # SenseHive makes one private fleet key, kept in /data (in backups)
+    elif not MASTER_KEY.match(key):
+        print("SenseHive: heartbeat receiver stays off: heartbeat_master_key must be 64 hex characters or auto")
         return 'invalid key'
     environ['HEARTBEAT_MASTER_KEY'] = key
     token = (options.get('heartbeat_api_token') or '').strip()
@@ -103,6 +105,10 @@ def build_heartbeat_env(options, environ):
         environ['HEARTBEAT_BROKER'] = broker
     if options.get('heartbeat_port'):
         environ['HEARTBEAT_PORT'] = str(options['heartbeat_port'])
+    user = (options.get('heartbeat_broker_username') or '').strip()
+    if user:
+        environ['HEARTBEAT_BROKER_USERNAME'] = user
+        environ['HEARTBEAT_BROKER_PASSWORD'] = options.get('heartbeat_broker_password') or ''
     return 'on'
 
 

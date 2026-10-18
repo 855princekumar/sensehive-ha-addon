@@ -1,5 +1,15 @@
 # Changelog
 
+## 1.8.0 (SenseHive 1.8.0)
+
+- Update SenseHive to 1.8.0: https://github.com/855princekumar/sense-hive/releases/tag/v1.8.0
+- **Add heartbeat nodes from Home Assistant:** set **Heartbeat master key** to `auto`
+  (a private fleet key, kept in the add-on's data and in backups), then
+  **Heartbeats, Add node**: a join token per node, or many as a CSV. On each node:
+  `git clone` the heartbeat agent and `sudo python3 setup.py`. Nodes of other
+  SenseHives on the same broker never appear.
+- New options **Heartbeat broker username / password** for a broker that needs a login.
+
 ## 1.7.0 (SenseHive 1.7.0)
 
 - Update SenseHive to 1.7.0: https://github.com/855princekumar/sense-hive/releases/tag/v1.7.0
