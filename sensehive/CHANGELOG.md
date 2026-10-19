@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.8.2 (SenseHive 1.8.2)
+
+- Update SenseHive to 1.8.2: https://github.com/855princekumar/sense-hive/releases/tag/v1.8.2
+- Screenshots from a real Home Assistant in the documentation, taken by CI on every change
+
 ## 1.8.1 (SenseHive 1.8.1)
 
 - Update SenseHive to 1.8.1: https://github.com/855princekumar/sense-hive/releases/tag/v1.8.1

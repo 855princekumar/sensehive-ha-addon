@@ -38,7 +38,7 @@ jobs:
       - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97  # v7
         with:
           python-version: "3.12"
-      - run: pip install pytest && python -m pytest -v tests/test_run.py
+      - run: pip install pytest && python -m pytest -v tests/test_run.py tests/test_docs_images.py
 
   build:
     name: Build ${{ matrix.arch }}
@@ -114,7 +114,12 @@ jobs:
           pip install playwright==1.55.0
           python -m playwright install --with-deps chromium
           python -W ignore tests/ha-devcontainer/ha_browser_e2e.py --ha http://127.0.0.1:7080 --user e2e \
-            --password "$E2E_PASSWORD" --sensehive sense-hive --out ha-report --min-checks 30
+            --password "$E2E_PASSWORD" --sensehive sense-hive --out ha-report --min-checks 30 --shots ha-screenshots
+      - name: Screenshots for the docs (the panel in Home Assistant, the add-on pages)
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9  # v7
+        with:
+          name: ha-screenshots
+          path: ha-screenshots/*.png
       - name: Logs and screenshots of failures
         if: failure()
         run: |

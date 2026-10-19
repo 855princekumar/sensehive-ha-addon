@@ -7,7 +7,8 @@ nodes through encrypted heartbeats (see [Heartbeats](#heartbeats-for-edge-nodes)
 
 ## Installation
 
-1. In Home Assistant go to **Settings → Add-ons → Add-on Store**.
+1. In Home Assistant go to **Settings → Apps → Install app** (before Home
+   Assistant 2026: **Settings → Add-ons → Add-on Store**).
 2. Open the menu (⋮) → **Repositories** and add:
    `https://github.com/855princekumar/sensehive-ha-addon`
 3. Install **SenseHive** and press **Start**.
@@ -16,6 +17,13 @@ nodes through encrypted heartbeats (see [Heartbeats](#heartbeats-for-edge-nodes)
 
 Inside Home Assistant you are already signed in, so there is no SenseHive
 login screen.
+
+![SenseHive in the Home Assistant sidebar](https://raw.githubusercontent.com/855princekumar/sensehive-ha-addon/main/docs/screenshots/ha-panel-laptop.png)
+
+SenseHive in its sidebar panel, connected to the Mosquitto broker add-on, with
+devices online from their last will. On a phone, in the Home Assistant app:
+
+![SenseHive in the Home Assistant app on a phone](https://raw.githubusercontent.com/855princekumar/sensehive-ha-addon/main/docs/screenshots/ha-panel-phone.png)
 
 ## MQTT broker
 

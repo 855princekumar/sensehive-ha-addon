@@ -18,7 +18,6 @@ mode, no sideways scroll, nothing sticking out, no errors), and every device
 Inactive after the fleet stops.
 """
 import argparse
-import json
 import shlex
 import os
 import subprocess
@@ -47,6 +46,62 @@ def panel_frame(page, seconds=90):
     raise RuntimeError('the SenseHive panel did not open: %s' % page.url)
 
 
+def ha_login(page, a):
+    page.goto(a.ha + '/')
+    page.wait_for_selector('input[name="username"]', timeout=60000)
+    page.fill('input[name="username"]', a.user)
+    page.fill('input[name="password"]', a.password)
+    page.keyboard.press('Enter')
+    page.wait_for_url(lambda u: '/auth/' not in u, timeout=60000)
+    time.sleep(3)
+
+
+def addon_pages(a):
+    """The add-on as Home Assistant shows it: its Info page (Start, Open Web UI, the sidebar switch)
+    and its Configuration page, for the docs."""
+    from playwright.sync_api import sync_playwright
+    os.makedirs(a.shots, exist_ok=True)
+    with sync_playwright() as pw:
+        b = pw.chromium.launch()
+        page = b.new_context(viewport={'width': 1440, 'height': 900}).new_page()
+        ha_login(page, a)
+        import re
+
+        def save(name):
+            time.sleep(4)
+            page.screenshot(path=os.path.join(a.shots, name + '.png'))
+            print('screenshot', name, page.url, flush=True)
+
+        def click_first(*names):
+            for n in names:                              # Home Assistant 2026 calls add-ons Apps
+                for loc in (page.get_by_role('link', name=re.compile(n, re.I)),
+                            page.get_by_role('menuitem', name=re.compile(n, re.I)),
+                            page.get_by_text(re.compile('^' + n + '$', re.I))):
+                    try:
+                        if loc.count():
+                            loc.first.click(timeout=5000)
+                            return n
+                    except Exception:
+                        pass
+            return None
+
+        page.goto(a.ha + '/config/dashboard')
+        save('ha-settings')
+        print('opened', click_first('Apps', 'Add-ons'), flush=True)
+        save('ha-apps')
+        page.get_by_text('Lightweight MQTT topic logger').first.click(timeout=15000)   # the card, not the sidebar
+        save('ha-addon-info')
+        for loc in (page.get_by_role('tab', name=re.compile('^Configuration$', re.I)),
+                    page.get_by_text(re.compile('^Configuration$', re.I))):
+            if loc.count():
+                loc.first.click(timeout=10000)
+                break
+        save('ha-addon-config')
+        page.get_by_text(re.compile('^Documentation$', re.I)).first.click(timeout=10000)
+        save('ha-addon-docs')
+        b.close()
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument('--ha', required=True, help='Home Assistant Core, e.g. http://127.0.0.1:7080')
@@ -57,6 +112,7 @@ def main():
     ap.add_argument('--devices', type=int, default=6)
     ap.add_argument('--out', default='ha-report')
     ap.add_argument('--min-checks', type=int, default=0)
+    ap.add_argument('--shots', help='also save screenshots for the docs here (the panel, the add-on pages)')
     a = ap.parse_args()
     sys.path.insert(0, os.path.join(a.sensehive, 'tools'))
     sys.path.insert(0, os.path.join(a.sensehive, 'version-1.0'))
@@ -149,7 +205,10 @@ def main():
     def open_dashboard_after_reload(page):
         return panel_frame(page)
 
-    rep2 = live.run(None, None, fleet, fleet_cmd, 'unused', a.out, login=False, open_dashboard=open_dashboard)
+    rep2 = live.run(None, None, fleet, fleet_cmd, 'unused', a.out, login=False, open_dashboard=open_dashboard,
+                    shots=a.shots, shot_prefix='ha-panel')
+    if a.shots:
+        addon_pages(a)
     passes, fails = rep.passes + rep2.passes, rep.fails + rep2.fails
     print(f'Home Assistant: {passes} checks passed, {len(fails)} failed')
     if a.min_checks and passes + len(fails) < a.min_checks:
