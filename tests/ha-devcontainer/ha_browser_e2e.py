@@ -74,8 +74,11 @@ def main():
     with open(os.path.join(os.path.dirname(os.path.abspath(__file__)), 'fleet_in_addon.sh'), 'w', newline='\n') as fh:
         fh.write('#!/bin/sh\n'
                  '# sensehive-demo on the Home Assistant host, on its Mosquitto, as a Home Assistant user\n'
-                 f'exec docker exec {a.container} python3 /root/demo_fleet.py --port 1883 '
-                 f'--username {shlex.quote(a.user)} --password-mqtt {shlex.quote(a.password)} "$@" --broker localhost\n')
+                 '# (the password comes from the environment, never written to this file)\n'
+                 f'exec docker exec -e E2E_MQTT_PASSWORD {a.container} sh -c '
+                 f'\'exec python3 /root/demo_fleet.py --port 1883 --username {shlex.quote(a.user)} '
+                 '--password-mqtt "$E2E_MQTT_PASSWORD" "$@" --broker localhost\' sh "$@"\n')
+    os.environ['E2E_MQTT_PASSWORD'] = a.password
     fleet_cmd = 'sh ' + os.path.join(os.path.dirname(os.path.abspath(__file__)), 'fleet_in_addon.sh').replace(os.sep, '/')
     fleet = devices(a.devices, 'sensehive-demo')
     rep = live.Report(a.out)
