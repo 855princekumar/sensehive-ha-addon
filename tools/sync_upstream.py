@@ -58,8 +58,10 @@ def main():
         return
 
     addon_version = re.search(r'^version:\s*"([^"]+)"', config, re.M).group(1)
-    major, minor, _ = as_tuple(addon_version)
-    new_addon = f'{major}.{minor + 1}.0'
+    # The add-on follows SenseHive's version (1.8.1 runs SenseHive 1.8.1); an add-on-only
+    # change between releases takes the next patch
+    major, minor, patch = as_tuple(addon_version)
+    new_addon = upstream if as_tuple(upstream) > as_tuple(addon_version) else f'{major}.{minor}.{patch + 1}'
 
     (ADDON / 'build.yaml').write_text(build.replace(f'{IMAGE}:{current}', f'{IMAGE}:{upstream}'))
     (ADDON / 'config.yaml').write_text(config.replace(f'version: "{addon_version}"', f'version: "{new_addon}"', 1))

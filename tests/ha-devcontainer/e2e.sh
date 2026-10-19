@@ -3,6 +3,7 @@
 # Runs inside the HA devcontainer; Home Assistant Core listens on localhost:80.
 # Needs /root/ingress_session.py (HA WebSocket supervisor/api -> /ingress/session) and an onboarded user token.
 set -u
+: "${E2E_USER:?}" "${E2E_PASSWORD:?}"   # a Home Assistant user: Mosquitto accepts them
 PASS=0; FAIL=0
 check() { if eval "$2"; then echo "  [PASS] $1"; PASS=$((PASS+1)); else echo "  [FAIL] $1"; FAIL=$((FAIL+1)); fi; }
 sv() { docker exec hassio_cli sh -c "curl -s -X $1 -H \"Authorization: Bearer \$SUPERVISOR_TOKEN\" http://supervisor$2"; }
@@ -14,7 +15,7 @@ ig() { curl -s -b "ingress_session=${SESSION}" -H 'Content-Type: application/jso
 
 echo "Ingress through Home Assistant Core"
 check "no ingress session -> rejected by Home Assistant" '[ "$(curl -s -o /dev/null -w "%{http_code}" ${BASE}/)" = "401" ]'
-check "dashboard loads through HA ingress, no SenseHive login" 'ig GET / | grep -q "Sense-Hive"'
+check "dashboard loads through HA ingress, no SenseHive login" 'ig GET / | grep -q "<title>SenseHive</title>" && ig GET / | grep -q "id=\"root\""'
 check "login page not shown (dashboard served directly)" '! ig GET / | grep -q "Sign in to continue"'
 check "API reachable through ingress" '[ "$(curl -s -o /dev/null -w "%{http_code}" -b ingress_session=${SESSION} ${BASE}/api/nodes)" = "200" ]'
 check "health via ingress reports MQTT connected" 'ig GET /api/health | grep -q "\"mqtt_connected\":true"'
@@ -28,13 +29,17 @@ echo "Data flow through Mosquitto app"
 for id in $(ig GET /api/nodes | python3 -c 'import sys,json;print(" ".join(str(n["id"]) for n in json.load(sys.stdin)))'); do ig DELETE /api/nodes/$id >/dev/null; done
 check "add topic with tag, node and LWT via ingress" 'ig POST /api/nodes "{\"topic\":\"ha/greenhouse/telemetry\",\"tag\":\"environment\",\"node_name\":\"greenhouse-esp32\",\"lwt_topic\":\"ha/greenhouse/status\"}" | grep -q success'
 sleep 2
-docker exec -i app_local_sensehive python - <<'PY'
+# A device on the network: Home Assistant's Mosquitto on port 1883, signed in as a
+# Home Assistant user (the add-on's own broker login stays private: AppArmor)
+E2E_USER="$E2E_USER" E2E_PASSWORD="$E2E_PASSWORD" python3 - <<'PY'
 import json, os
-env = dict(v.split('=', 1) for v in open('/proc/1/environ').read().split('\0') if '=' in v)
 import paho.mqtt.client as mqtt
-c = mqtt.Client(mqtt.CallbackAPIVersion.VERSION2)
-c.username_pw_set(env['DEFAULT_BROKER_USERNAME'], env['DEFAULT_BROKER_PASSWORD'])
-c.connect(env['DEFAULT_BROKER_HOST'], int(env['DEFAULT_BROKER_PORT']))
+try:
+    c = mqtt.Client(mqtt.CallbackAPIVersion.VERSION2)
+except AttributeError:
+    c = mqtt.Client()
+c.username_pw_set(os.environ['E2E_USER'], os.environ['E2E_PASSWORD'])
+c.connect('localhost', 1883)
 c.loop_start()
 for i in range(5):
     c.publish('ha/greenhouse/telemetry', json.dumps({'temperature': 21 + i, 'readings': [1, 2, 3], 'meta': {'fw': '2.%d' % i}}), qos=1).wait_for_publish()

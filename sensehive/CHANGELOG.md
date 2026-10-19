@@ -1,5 +1,14 @@
 # Changelog
 
+## 1.8.1 (SenseHive 1.8.1)
+
+- Update SenseHive to 1.8.1: https://github.com/855princekumar/sense-hive/releases/tag/v1.8.1
+- Inside Home Assistant the page has no Sign out button (Home Assistant signs you in)
+- Long topics wrap after a slash; switching the heartbeat history period goes straight to Loading
+- Tested in a real Home Assistant on every change: the official apps devcontainer (Supervisor
+  and Core), Mosquitto, and a browser that signs in to Home Assistant, opens SenseHive from the
+  sidebar, adds a node and watches an emulated fleet on phone, tablet, laptop and desktop
+
 ## 1.8.0 (SenseHive 1.8.0)
 
 - Update SenseHive to 1.8.0: https://github.com/855princekumar/sense-hive/releases/tag/v1.8.0

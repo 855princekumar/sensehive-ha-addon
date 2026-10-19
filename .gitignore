@@ -1,3 +1,5 @@
 __pycache__/
 *.py[cod]
 .pytest_cache/
+tests/ha-devcontainer/fleet_in_addon.sh
+ha-report/
