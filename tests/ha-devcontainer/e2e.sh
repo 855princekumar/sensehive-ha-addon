@@ -14,7 +14,7 @@ ig() { curl -s -b "ingress_session=${SESSION}" -H 'Content-Type: application/jso
 
 echo "Ingress through Home Assistant Core"
 check "no ingress session -> rejected by Home Assistant" '[ "$(curl -s -o /dev/null -w "%{http_code}" ${BASE}/)" = "401" ]'
-check "dashboard loads through HA ingress, no SenseHive login" 'ig GET / | grep -q "Sense-Hive"'
+check "dashboard loads through HA ingress, no SenseHive login" 'ig GET / | grep -q "<title>SenseHive</title>" && ig GET / | grep -q "id=\"root\""'
 check "login page not shown (dashboard served directly)" '! ig GET / | grep -q "Sign in to continue"'
 check "API reachable through ingress" '[ "$(curl -s -o /dev/null -w "%{http_code}" -b ingress_session=${SESSION} ${BASE}/api/nodes)" = "200" ]'
 check "health via ingress reports MQTT connected" 'ig GET /api/health | grep -q "\"mqtt_connected\":true"'

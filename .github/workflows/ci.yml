@@ -77,3 +77,50 @@ jobs:
         with:
           python-version: "3.12"
       - run: python tests/sandbox_test.py
+
+  real-ha:
+    name: Real Home Assistant (Supervisor and Core), with a browser
+    runs-on: ubuntu-24.04
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7
+        with:
+          repository: 855princekumar/sense-hive
+          path: sense-hive
+      - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97  # v7
+        with:
+          python-version: "3.12"
+      - name: Home Assistant from the official apps devcontainer (this repository as a local app repository)
+        run: |
+          docker run -d --privileged --name ha-dev -p 7080:80 \
+            -v ha-dev-docker:/var/lib/docker -v ha-dev-containerd:/var/lib/containerd -v ha-dev-supervisor:/mnt/supervisor \
+            --tmpfs /tmp -v "$PWD:/mnt/supervisor/apps/local/sensehive-ha-addon" ghcr.io/home-assistant/devcontainer:6-apps
+          for i in $(seq 1 60); do docker exec ha-dev docker info >/dev/null 2>&1 && break; sleep 3; done
+          docker exec -d ha-dev bash -c 'supervisor_run > /tmp/supervisor.log 2>&1'
+          for i in $(seq 1 150); do
+            [ "$(curl -s -o /dev/null -w '%{http_code}' http://127.0.0.1:7080/api/onboarding)" = 200 ] && break; sleep 10
+          done
+          docker exec ha-dev bash -lc 'ha core info --raw-json' | python -c "import json,sys;d=json.load(sys.stdin)['data'];print('Home Assistant', d['version'])"
+      - name: Set up as a person would (onboarding, Mosquitto, SenseHive in the sidebar)
+        run: |
+          pw="e2e-$(openssl rand -hex 12)"; echo "::add-mask::$pw"; echo "E2E_PASSWORD=$pw" >> "$GITHUB_ENV"
+          docker cp tests/ha-devcontainer/. ha-dev:/root/
+          docker exec -e E2E_USER=e2e -e E2E_PASSWORD="$pw" ha-dev bash /root/setup_ha.sh
+      - name: Ingress, data through Mosquitto, restart, backup, security rating (21 checks)
+        run: docker exec ha-dev bash /root/e2e.sh
+      - name: A browser in Home Assistant (sign-in, sidebar, panel, an emulated fleet; phone to desktop)
+        run: |
+          pip install playwright==1.55.0
+          python -m playwright install --with-deps chromium
+          python -W ignore tests/ha-devcontainer/ha_browser_e2e.py --ha http://127.0.0.1:7080 --user e2e \
+            --password "$E2E_PASSWORD" --sensehive sense-hive --out ha-report --min-checks 30
+      - name: Logs and screenshots of failures
+        if: failure()
+        run: |
+          docker exec ha-dev bash -lc 'tail -60 /tmp/supervisor.log; ha apps logs local_sensehive | tail -60' || true
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9  # v7
+        if: failure()
+        with:
+          name: ha-report
+          path: ha-report/*.png
