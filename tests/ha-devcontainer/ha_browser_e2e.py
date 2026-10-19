@@ -88,11 +88,17 @@ def addon_pages(a):
         page.goto(a.ha + '/config/dashboard')
         save('ha-settings')
         print('opened', click_first('Apps', 'Add-ons'), flush=True)
-        save('ha-addon-store')
-        print('opened', click_first('SenseHive'), flush=True)
+        save('ha-apps')
+        page.get_by_text('Lightweight MQTT topic logger').first.click(timeout=15000)   # the card, not the sidebar
         save('ha-addon-info')
-        print('opened', click_first('Configuration'), flush=True)
+        for loc in (page.get_by_role('tab', name=re.compile('^Configuration$', re.I)),
+                    page.get_by_text(re.compile('^Configuration$', re.I))):
+            if loc.count():
+                loc.first.click(timeout=10000)
+                break
         save('ha-addon-config')
+        page.get_by_text(re.compile('^Documentation$', re.I)).first.click(timeout=10000)
+        save('ha-addon-docs')
         b.close()
 
 
