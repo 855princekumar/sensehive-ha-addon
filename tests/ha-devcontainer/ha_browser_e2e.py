@@ -65,13 +65,34 @@ def addon_pages(a):
         b = pw.chromium.launch()
         page = b.new_context(viewport={'width': 1440, 'height': 900}).new_page()
         ha_login(page, a)
-        for name, path in (('ha-addon-info', '/hassio/addon/local_sensehive/info'),
-                           ('ha-addon-config', '/hassio/addon/local_sensehive/config'),
-                           ('ha-addon-store', '/hassio/store')):
-            page.goto(a.ha + path)
-            time.sleep(6)
+        import re
+
+        def save(name):
+            time.sleep(4)
             page.screenshot(path=os.path.join(a.shots, name + '.png'))
-            print('screenshot', name, page.url)
+            print('screenshot', name, page.url, flush=True)
+
+        def click_first(*names):
+            for n in names:                              # Home Assistant 2026 calls add-ons Apps
+                for loc in (page.get_by_role('link', name=re.compile(n, re.I)),
+                            page.get_by_role('menuitem', name=re.compile(n, re.I)),
+                            page.get_by_text(re.compile('^' + n + '$', re.I))):
+                    try:
+                        if loc.count():
+                            loc.first.click(timeout=5000)
+                            return n
+                    except Exception:
+                        pass
+            return None
+
+        page.goto(a.ha + '/config/dashboard')
+        save('ha-settings')
+        print('opened', click_first('Apps', 'Add-ons'), flush=True)
+        save('ha-addon-store')
+        print('opened', click_first('SenseHive'), flush=True)
+        save('ha-addon-info')
+        print('opened', click_first('Configuration'), flush=True)
+        save('ha-addon-config')
         b.close()
 
 
