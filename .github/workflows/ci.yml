@@ -108,7 +108,7 @@ jobs:
           docker cp tests/ha-devcontainer/. ha-dev:/root/
           docker exec -e E2E_USER=e2e -e E2E_PASSWORD="$pw" ha-dev bash /root/setup_ha.sh
       - name: Ingress, data through Mosquitto, restart, backup, security rating (21 checks)
-        run: docker exec ha-dev bash /root/e2e.sh
+        run: docker exec -e E2E_USER=e2e -e E2E_PASSWORD="$E2E_PASSWORD" ha-dev bash /root/e2e.sh
       - name: A browser in Home Assistant (sign-in, sidebar, panel, an emulated fleet; phone to desktop)
         run: |
           pip install playwright==1.55.0

@@ -20,7 +20,7 @@ docker exec ha-dev bash -lc 'ha apps install local_sensehive && ha apps start lo
 # 3. The same as CI: onboarding, Mosquitto, SenseHive in the sidebar, the 21 checks
 docker cp tests/ha-devcontainer/. ha-dev:/root/
 docker exec -e E2E_USER=e2e -e E2E_PASSWORD=choose-one ha-dev bash /root/setup_ha.sh
-docker exec ha-dev bash /root/e2e.sh
+docker exec -e E2E_USER=e2e -e E2E_PASSWORD=choose-one ha-dev bash /root/e2e.sh
 
 # 4. A browser in Home Assistant (needs a SenseHive checkout and Playwright on this machine;
 #    publish port 80 of the devcontainer, e.g. -p 7080:80 in step 1)

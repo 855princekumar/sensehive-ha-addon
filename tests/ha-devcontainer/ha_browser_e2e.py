@@ -19,6 +19,7 @@ Inactive after the fleet stops.
 """
 import argparse
 import json
+import shlex
 import os
 import subprocess
 import sys
@@ -62,20 +63,19 @@ def main():
     import live_e2e as live
     from demo_fleet import devices
 
-    # The emulated fleet runs inside the add-on's container, on Home Assistant's Mosquitto
+    # The emulated fleet: devices on the network, on Home Assistant's Mosquitto (port 1883 of the
+    # Home Assistant host), signed in as a Home Assistant user. The add-on's own broker login stays
+    # private (its AppArmor profile keeps other processes out of it).
     demo_src = os.path.join(a.sensehive, 'version-1.0', 'demo_fleet.py')
-    r = sh(f'docker cp "{demo_src}" {a.container}:/root/demo_fleet.py && '
-           f'docker exec {a.container} docker cp /root/demo_fleet.py app_local_sensehive:/tmp/demo_fleet.py')
+    r = sh(f'docker cp "{demo_src}" {a.container}:/root/demo_fleet.py')
     if r.returncode:
-        print('FAIL could not put the emulated fleet in the add-on container', r.stdout)
+        print('FAIL could not put the emulated fleet on the Home Assistant host', r.stdout)
         return 1
     with open(os.path.join(os.path.dirname(os.path.abspath(__file__)), 'fleet_in_addon.sh'), 'w', newline='\n') as fh:
         fh.write('#!/bin/sh\n'
-                 '# sensehive-demo inside the add-on, with the broker and login the Supervisor gave SenseHive\n'
-                 f'exec docker exec {a.container} docker exec app_local_sensehive sh -c '
-                 '\'eval "$(tr "\\0" "\\n" < /proc/1/environ | grep ^DEFAULT_BROKER_ | sed "s/^/export /")"; '
-                 'exec python /tmp/demo_fleet.py --port "$DEFAULT_BROKER_PORT" --username "$DEFAULT_BROKER_USERNAME" '
-                 '--password-mqtt "$DEFAULT_BROKER_PASSWORD" "$@" --broker "$DEFAULT_BROKER_HOST"\' sh "$@"\n')
+                 '# sensehive-demo on the Home Assistant host, on its Mosquitto, as a Home Assistant user\n'
+                 f'exec docker exec {a.container} python3 /root/demo_fleet.py --port 1883 '
+                 f'--username {shlex.quote(a.user)} --password-mqtt {shlex.quote(a.password)} "$@" --broker localhost\n')
     fleet_cmd = 'sh ' + os.path.join(os.path.dirname(os.path.abspath(__file__)), 'fleet_in_addon.sh').replace(os.sep, '/')
     fleet = devices(a.devices, 'sensehive-demo')
     rep = live.Report(a.out)

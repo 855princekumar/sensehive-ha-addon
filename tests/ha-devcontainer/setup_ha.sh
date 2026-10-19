@@ -5,8 +5,8 @@
 #   E2E_USER=e2e E2E_PASSWORD=... bash setup_ha.sh
 set -euo pipefail
 : "${E2E_USER:?}" "${E2E_PASSWORD:?}"
-command -v python3 >/dev/null && python3 -c 'import websocket' 2>/dev/null || \
-  { apt-get update -qq && DEBIAN_FRONTEND=noninteractive apt-get install -y -qq python3 python3-websocket curl >/dev/null; }
+command -v python3 >/dev/null && python3 -c 'import websocket, paho.mqtt' 2>/dev/null || \
+  { apt-get update -qq && DEBIAN_FRONTEND=noninteractive apt-get install -y -qq python3 python3-websocket python3-paho-mqtt curl >/dev/null; }
 CID=http://localhost/
 
 echo "== onboarding"
